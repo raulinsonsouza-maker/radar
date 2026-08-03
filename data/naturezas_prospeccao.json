@@ -1,0 +1,62 @@
+{
+  "alta": {
+    "descricao": "Empresas privadas com alta probabilidade de comprar marketing",
+    "itens": [
+      {"codigo": "2062", "nome_curto": "Ltda", "nome": "Sociedade Empresária Limitada"},
+      {"codigo": "2305", "nome_curto": "EIRELI", "nome": "EIRELI (empresária)"},
+      {"codigo": "2313", "nome_curto": "EIRELI Simples", "nome": "EIRELI (simples)"},
+      {"codigo": "2135", "nome_curto": "Empresário Individual", "nome": "Empresário (Individual)"},
+      {"codigo": "4014", "nome_curto": "EI Imobiliária", "nome": "Empresa Individual Imobiliária"},
+      {"codigo": "2046", "nome_curto": "SA Aberta", "nome": "Sociedade Anônima Aberta"},
+      {"codigo": "2054", "nome_curto": "SA Fechada", "nome": "Sociedade Anônima Fechada"},
+      {"codigo": "2232", "nome_curto": "Simples Pura", "nome": "Sociedade Simples Pura"},
+      {"codigo": "2240", "nome_curto": "Simples Ltda", "nome": "Sociedade Simples Limitada"},
+      {"codigo": "2259", "nome_curto": "Simples Nome Coletivo", "nome": "Sociedade Simples em Nome Coletivo"},
+      {"codigo": "2321", "nome_curto": "Advocacia Unipessoal", "nome": "Sociedade Unipessoal de Advocacia"},
+      {"codigo": "3034", "nome_curto": "Cartório", "nome": "Serviço Notarial e Registral"},
+      {"codigo": "2348", "nome_curto": "Inova Simples", "nome": "Empresa Simples de Inovação"},
+      {"codigo": "2070", "nome_curto": "Nome Coletivo", "nome": "Sociedade Empresária em Nome Coletivo"},
+      {"codigo": "2089", "nome_curto": "Comandita Simples", "nome": "Sociedade Empresária em Comandita Simples"},
+      {"codigo": "2097", "nome_curto": "Comandita por Ações", "nome": "Sociedade Empresária em Comandita por Ações"},
+      {"codigo": "3999", "nome_curto": "Associação Privada", "nome": "Associação Privada"}
+    ]
+  },
+  "opcional": {
+    "descricao": "Compram às vezes; ciclo de venda mais longo",
+    "itens": [
+      {"codigo": "2143", "nome_curto": "Cooperativa", "nome": "Cooperativa"},
+      {"codigo": "2330", "nome_curto": "Cooperativa de Consumo", "nome": "Cooperativas de Consumo"},
+      {"codigo": "2151", "nome_curto": "Consórcio de Sociedades", "nome": "Consórcio de Sociedades"},
+      {"codigo": "2283", "nome_curto": "Consórcio de Empregadores", "nome": "Consórcio de Empregadores"},
+      {"codigo": "2291", "nome_curto": "Consórcio Simples", "nome": "Consórcio Simples"},
+      {"codigo": "3085", "nome_curto": "Condomínio", "nome": "Condomínio Edilício"},
+      {"codigo": "3069", "nome_curto": "Fundação Privada", "nome": "Fundação Privada"},
+      {"codigo": "3301", "nome_curto": "Organização Social", "nome": "Organização Social (OS)"},
+      {"codigo": "3077", "nome_curto": "Serviço Social Autônomo", "nome": "Serviço Social Autônomo"},
+      {"codigo": "3247", "nome_curto": "Fundo Privado", "nome": "Fundo Privado"},
+      {"codigo": "2224", "nome_curto": "Fundo de Investimento", "nome": "Clube/Fundo de Investimento"},
+      {"codigo": "2160", "nome_curto": "Grupo de Sociedades", "nome": "Grupo de Sociedades"},
+      {"codigo": "3328", "nome_curto": "Previdência Fechada", "nome": "Plano de Benefícios de Previdência Complementar Fechada"},
+      {"codigo": "3115", "nome_curto": "Mediação e Arbitragem", "nome": "Entidade de Mediação e Arbitragem"},
+      {"codigo": "3131", "nome_curto": "Entidade Sindical", "nome": "Entidade Sindical"}
+    ]
+  },
+  "excluir": {
+    "descricao": "Fora do ICP de prospecção B2B (governo, política, internacional, especiais)",
+    "codigos": [
+      "0000", "8885",
+      "1015", "1023", "1031", "1040", "1058", "1066", "1074", "1082",
+      "1104", "1112", "1120", "1139", "1147", "1155", "1163", "1171", "1180",
+      "1198", "1210", "1228", "1236", "1244",
+      "1252", "1260", "1279", "1287", "1295", "1309", "1317", "1325", "1333", "1341", "1350",
+      "2011", "2038",
+      "2178", "2194", "2216", "2275",
+      "3204", "3212",
+      "3220", "3239",
+      "3255", "3263", "3271", "3280", "3298", "4090",
+      "4120",
+      "5010", "5029", "5037",
+      "2100", "2127", "2267", "3107"
+    ]
+  }
+}

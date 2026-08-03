@@ -1,0 +1,4 @@
+# Exemplo Caddy (VPS) — apontar domínio para o servidor
+# symbius.exemplo.com {
+#   reverse_proxy localhost:8000
+# }
