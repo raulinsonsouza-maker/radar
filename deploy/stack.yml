@@ -49,6 +49,7 @@ services:
       KOMMO_PIPELINE_ID: ${KOMMO_PIPELINE_ID:-11592391}
       KOMMO_STATUS_ID: ${KOMMO_STATUS_ID:-109916160}
       KOMMO_TAG_ID: ${KOMMO_TAG_ID:-143385}
+      KOMMO_BOT_ID: ${KOMMO_BOT_ID:-74791}
     networks:
       - internal
       - traefik_proxy

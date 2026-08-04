@@ -44,6 +44,7 @@ class Settings(BaseSettings):
     kommo_pipeline_id: int = 11592391
     kommo_status_id: int = 109916160
     kommo_tag_id: int = 143385
+    kommo_bot_id: int = 74791
     kommo_integration_id: str = ""
 
     model_config = {
@@ -434,6 +435,7 @@ async def capture_lead(payload: LeadCaptureRequest):
             pipeline_id=cfg.kommo_pipeline_id,
             status_id=cfg.kommo_status_id,
             tag_id=cfg.kommo_tag_id,
+            bot_id=cfg.kommo_bot_id,
         )
     except Exception as err:
         # Log detalhe interno; resposta ao cliente permanece genérica.

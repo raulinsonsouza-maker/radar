@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import logging
 import re
 from typing import Any
 
 import httpx
+
+logger = logging.getLogger("radar.kommo")
 
 # Conta Symbius (symbius.kommo.com) — funil principal
 DEFAULT_PIPELINE_ID = 11592391
@@ -11,6 +14,7 @@ DEFAULT_STATUS_ID = 109916160  # coluna "Radar"
 DEFAULT_TAG_NAME = "Radar"
 DEFAULT_TAG_COLOR = "FF8F92"  # vermelho na paleta Kommo
 DEFAULT_TAG_ID = 143385
+DEFAULT_BOT_ID = 74791  # Salesbot "Radar"
 
 
 def normalize_whatsapp(raw: str) -> str:
@@ -51,6 +55,28 @@ def normalize_whatsapp(raw: str) -> str:
     return f"55{local}"
 
 
+async def launch_salesbot(
+    *,
+    client: httpx.AsyncClient,
+    base: str,
+    headers: dict[str, str],
+    bot_id: int,
+    lead_id: int,
+) -> None:
+    """Dispara o Salesbot no lead (POST /api/v4/bots/{id}/run)."""
+    if not bot_id or not lead_id:
+        return
+    res = await client.post(
+        f"{base}/bots/{bot_id}/run",
+        headers=headers,
+        json={"entity_id": lead_id, "entity_type": "leads"},
+    )
+    if res.status_code >= 400:
+        logger.error("Falha ao lançar Salesbot %s no lead %s: %s %s", bot_id, lead_id, res.status_code, res.text)
+        return
+    logger.info("Salesbot %s lançado no lead %s (HTTP %s)", bot_id, lead_id, res.status_code)
+
+
 async def create_radar_lead(
     *,
     token: str,
@@ -63,8 +89,9 @@ async def create_radar_lead(
     tag_id: int = DEFAULT_TAG_ID,
     tag_name: str = DEFAULT_TAG_NAME,
     tag_color: str = DEFAULT_TAG_COLOR,
+    bot_id: int = DEFAULT_BOT_ID,
 ) -> dict[str, Any]:
-    """Cria lead + contato no Kommo (coluna Radar, tag Radar)."""
+    """Cria lead + contato no Kommo (coluna Radar, tag Radar) e dispara o Salesbot."""
     phone = normalize_whatsapp(whatsapp)
     if not phone or len(phone) < 12:
         raise ValueError(f"WhatsApp inválido após normalização: {whatsapp!r} → {phone!r}")
@@ -123,6 +150,25 @@ async def create_radar_lead(
                 pass
             raise RuntimeError(f"Kommo HTTP {res.status_code}: {detail}")
         data = res.json()
+        created: dict[str, Any]
         if isinstance(data, list) and data:
-            return data[0]
-        return data if isinstance(data, dict) else {"raw": data}
+            created = data[0]
+        elif isinstance(data, dict):
+            created = data
+        else:
+            created = {"raw": data}
+
+        lead_id = created.get("id") if isinstance(created, dict) else None
+        if isinstance(lead_id, int) and bot_id:
+            try:
+                await launch_salesbot(
+                    client=client,
+                    base=base,
+                    headers=headers,
+                    bot_id=bot_id,
+                    lead_id=lead_id,
+                )
+            except Exception:
+                logger.exception("Erro ao lançar Salesbot no lead %s", lead_id)
+
+        return created
