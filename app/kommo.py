@@ -50,7 +50,6 @@ async def create_radar_lead(
                     {
                         "id": tag_id,
                         "name": tag_name,
-                        "color": tag_color,
                     }
                 ],
                 "contacts": [

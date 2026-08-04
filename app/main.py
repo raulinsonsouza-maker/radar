@@ -436,6 +436,10 @@ async def capture_lead(payload: LeadCaptureRequest):
             tag_id=cfg.kommo_tag_id,
         )
     except Exception as err:
+        # Log detalhe interno; resposta ao cliente permanece genérica.
+        import logging
+
+        logging.getLogger("radar.kommo").exception("Falha ao criar lead no Kommo: %s", err)
         raise HTTPException(
             status_code=502,
             detail="Não foi possível registrar seu contato. Tente novamente em instantes.",
