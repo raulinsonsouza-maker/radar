@@ -544,6 +544,21 @@ export function phoneDigits(phone?: string | null): string {
   return phone.replace(/\D/g, '')
 }
 
+/** Máscara de digitação BR: (11) 99999-9999 */
+export function maskWhatsappBr(raw: string): string {
+  let d = phoneDigits(raw)
+  // Se colar com DDI 55, remove para mascarar só o local
+  if (d.startsWith('55') && d.length > 11) d = d.slice(2)
+  d = d.slice(0, 11)
+  if (d.length === 0) return ''
+  if (d.length <= 2) return `(${d}`
+  if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`
+  if (d.length <= 10) {
+    return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`
+  }
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`
+}
+
 /**
  * Normaliza para WhatsApp BR: 55 + DDD + número (11 dígitos locais).
  * Celular antigo (8 dígitos começando com 6–9) ganha o nono dígito.

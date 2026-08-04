@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { submitLeadCapture } from '../api'
+import { maskWhatsappBr, phoneDigits, submitLeadCapture } from '../api'
 import '../bruno-landing.css'
 
 function BrandMark({ light = false }: { light?: boolean }) {
@@ -57,7 +57,7 @@ export default function LandingBruno() {
     setLeadError(null)
     setLeadSubmitting(true)
     try {
-      await submitLeadCapture({ nome, email, whatsapp })
+      await submitLeadCapture({ nome, email, whatsapp: phoneDigits(whatsapp) })
       setLeadDone(true)
       setNome('')
       setEmail('')
@@ -583,12 +583,13 @@ export default function LandingBruno() {
                       id="lead-whatsapp"
                       name="whatsapp"
                       type="tel"
-                      inputMode="tel"
-                      autoComplete="tel"
-                      placeholder="11999998888"
+                      inputMode="numeric"
+                      autoComplete="tel-national"
+                      placeholder="(11) 99999-9999"
                       required
+                      maxLength={15}
                       value={whatsapp}
-                      onChange={(e) => setWhatsapp(e.target.value)}
+                      onChange={(e) => setWhatsapp(maskWhatsappBr(e.target.value))}
                     />
                   </label>
                   {leadError && (
