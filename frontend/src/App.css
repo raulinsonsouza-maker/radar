@@ -933,6 +933,20 @@ select:focus {
   background: var(--warm-soft);
 }
 
+.research-btn--inline {
+  width: 1.45rem;
+  height: 1.45rem;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.name-with-research {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
 .tags {
   display: flex;
   flex-wrap: wrap;

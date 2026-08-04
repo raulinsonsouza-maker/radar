@@ -12,6 +12,7 @@ import {
   formatMoney,
   formatPhone,
   formatPorte,
+  googlePersonResearchUrl,
   googleResearchUrl,
   isNaturezaTitular,
   loadSavedFilters,
@@ -27,6 +28,51 @@ import {
   type Socio,
 } from '../api'
 import '../App.css'
+
+function IconLupa({ size = 16 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true" focusable="false">
+      <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" strokeWidth="2" />
+      <path
+        d="M16.2 16.2 20 20"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+function PersonResearchLink({
+  nome,
+  municipio,
+  uf,
+  empresa,
+  label = 'Pesquisar pessoa no Google',
+}: {
+  nome?: string | null
+  municipio?: string | null
+  uf?: string | null
+  empresa?: string | null
+  label?: string
+}) {
+  const href = nome ? googlePersonResearchUrl(nome, { municipio, uf, empresa }) : null
+  if (!href) return null
+  return (
+    <a
+      className="research-btn research-btn--inline"
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      title={label}
+      aria-label={label}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <IconLupa size={13} />
+    </a>
+  )
+}
 
 function MultiPick({
   label,
@@ -861,16 +907,7 @@ function Prospectos() {
                     title="Pesquisar empresa no Google"
                     aria-label="Pesquisar empresa no Google"
                   >
-                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
-                      <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" strokeWidth="2" />
-                      <path
-                        d="M16.2 16.2 20 20"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                      />
-                    </svg>
+                    <IconLupa />
                   </a>
                   <div className="tags">
                     {item.tipo_estabelecimento && (
@@ -977,7 +1014,16 @@ function Prospectos() {
                     const decisor = nomeDecisor(item)
                     return (
                       <>
-                        <strong>{decisor.nome || 'Não identificado'}</strong>
+                        <strong className="name-with-research">
+                          <span>{decisor.nome || 'Não identificado'}</span>
+                          <PersonResearchLink
+                            nome={decisor.nome}
+                            municipio={item.municipio_nome}
+                            uf={item.uf}
+                            empresa={item.nome_fantasia || item.razao_social}
+                            label="Pesquisar decisor no Google"
+                          />
+                        </strong>
                         <span>
                           {decisor.tipo === 'titular'
                             ? 'Titular da empresa'
@@ -1024,8 +1070,15 @@ function Prospectos() {
                         <ul className="socios-list">
                           <li className="socio-item admin">
                             <div className="socio-main">
-                              <strong>
-                                {item.razao_social}
+                              <strong className="name-with-research">
+                                <span>{item.razao_social}</span>
+                                <PersonResearchLink
+                                  nome={item.razao_social}
+                                  municipio={item.municipio_nome}
+                                  uf={item.uf}
+                                  empresa={item.nome_fantasia || item.razao_social}
+                                  label="Pesquisar titular no Google"
+                                />
                                 <span className="admin-badge">Titular</span>
                               </strong>
                               <span className="socio-meta">
@@ -1054,8 +1107,19 @@ function Prospectos() {
                               className={`socio-item${socio.eh_admin ? ' admin' : ''}`}
                             >
                               <div className="socio-main">
-                                <strong>
-                                  {socio.nome_socio || 'Sem nome'}
+                                <strong className="name-with-research">
+                                  <span>{socio.nome_socio || 'Sem nome'}</span>
+                                  <PersonResearchLink
+                                    nome={socio.nome_socio}
+                                    municipio={item.municipio_nome}
+                                    uf={item.uf}
+                                    empresa={item.nome_fantasia || item.razao_social}
+                                    label={
+                                      socio.eh_admin
+                                        ? 'Pesquisar decisor no Google'
+                                        : 'Pesquisar sócio no Google'
+                                    }
+                                  />
                                   {socio.eh_admin && (
                                     <span className="admin-badge">Decisor</span>
                                   )}
