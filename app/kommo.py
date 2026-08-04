@@ -14,14 +14,41 @@ DEFAULT_TAG_ID = 143385
 
 
 def normalize_whatsapp(raw: str) -> str:
+    """Normaliza celular BR para o formato que a Kommo/WhatsApp aceita.
+
+    A doc da Kommo (erro 3135) pede país + número válido e alerta que símbolos
+    invalidam o envio. Gravamos só dígitos: 55 + DDD + 9 dígitos.
+    Ex.: 5511999998888
+    """
     digits = re.sub(r"\D+", "", raw or "")
     if not digits:
         return ""
-    if digits.startswith("55") and len(digits) >= 12:
-        return f"+{digits}"
-    if len(digits) >= 10:
-        return f"+55{digits}"
-    return f"+{digits}"
+
+    # Remove zeros à esquerda de discagem internacional (ex.: 0055…)
+    digits = digits.lstrip("0") or digits
+
+    if digits.startswith("55"):
+        local = digits[2:]
+    else:
+        local = digits
+
+    # Remove DDI duplicado residual
+    if local.startswith("55") and len(local) > 11:
+        local = local[2:]
+
+    # Celular BR: DDD (2) + número. Se vier com 8 dígitos no número, inclui o 9.
+    if len(local) == 10:
+        # DDD + 8 dígitos (formato antigo) → insere 9 após o DDD
+        local = local[:2] + "9" + local[2:]
+    elif len(local) == 11 and local[2] != "9":
+        # DDD + 9 dígitos, mas sem o nono dígito típico de celular
+        local = local[:2] + "9" + local[2:]
+
+    if len(local) < 10:
+        # Número incompleto — devolve o que houver com DDI para não perder o lead
+        return f"55{local}" if local else ""
+
+    return f"55{local}"
 
 
 async def create_radar_lead(
@@ -37,8 +64,11 @@ async def create_radar_lead(
     tag_name: str = DEFAULT_TAG_NAME,
     tag_color: str = DEFAULT_TAG_COLOR,
 ) -> dict[str, Any]:
-    """Cria lead + contato no Kommo (coluna Leads, tag Radar)."""
+    """Cria lead + contato no Kommo (coluna Radar, tag Radar)."""
     phone = normalize_whatsapp(whatsapp)
+    if not phone or len(phone) < 12:
+        raise ValueError(f"WhatsApp inválido após normalização: {whatsapp!r} → {phone!r}")
+
     base = f"https://{subdomain}.kommo.com/api/v4"
     payload = [
         {
@@ -62,7 +92,13 @@ async def create_radar_lead(
                             },
                             {
                                 "field_code": "PHONE",
-                                "values": [{"value": phone, "enum_code": "MOB"}],
+                                "values": [
+                                    {
+                                        # Celular BR sem símbolos: 55DDD9XXXXXXXX
+                                        "value": phone,
+                                        "enum_code": "MOB",
+                                    }
+                                ],
                             },
                         ],
                     }

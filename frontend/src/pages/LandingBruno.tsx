@@ -583,8 +583,9 @@ export default function LandingBruno() {
                       id="lead-whatsapp"
                       name="whatsapp"
                       type="tel"
+                      inputMode="tel"
                       autoComplete="tel"
-                      placeholder="(11) 99999-9999"
+                      placeholder="11999998888"
                       required
                       value={whatsapp}
                       onChange={(e) => setWhatsapp(e.target.value)}
