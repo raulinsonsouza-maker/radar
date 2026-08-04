@@ -558,3 +558,68 @@ export function whatsappUrl(phone?: string | null): string | null {
   if (!d) return null
   return `https://wa.me/${d}`
 }
+
+/**
+ * Busca Google priorizando, na medida do possível:
+ * 1) Google Meu Negócio / Maps da empresa
+ * 2) Site oficial
+ * 3) Redes da empresa
+ * 4) Redes dos sócios/decisor
+ * 5) Econodata e consultas (CNPJ)
+ *
+ * O ranking final é do Google; a query só favorece esses sinais.
+ */
+export function googleResearchUrl(item: Prospecto): string {
+  const razao = item.razao_social?.trim()
+  const fantasia = item.nome_fantasia?.trim()
+  const decisor = item.socio_admin_nome?.trim()
+  const municipio = item.municipio_nome?.trim()
+  const uf = item.uf?.trim()
+
+  const brand =
+    fantasia
+      ?.split(/[\s&/\-|,]+/)
+      .map((w) => w.trim())
+      .find((w) => w.length >= 4 && !/^(ltda|me|eireli|sa|epp)$/i.test(w)) || null
+
+  const parts: string[] = []
+
+  // 1) Âncora local → favorece Meu Negócio / Maps
+  if (brand) parts.push(brand)
+  else if (fantasia) parts.push(`"${fantasia}"`)
+  else if (razao) parts.push(`"${razao}"`)
+
+  if (fantasia && brand && fantasia.toLowerCase() !== brand.toLowerCase()) {
+    parts.push(`"${fantasia}"`)
+  }
+
+  if (municipio && uf) parts.push(`"${municipio}" ${uf}`)
+  else if (municipio) parts.push(`"${municipio}"`)
+  else if (uf) parts.push(uf)
+
+  // 2–3) Site + redes da empresa (sem site:… para não matar o Maps)
+  parts.push('(site OR Instagram OR Facebook OR LinkedIn OR "Google Meu Negócio")')
+
+  // 4) Redes do sócio/titular
+  const pessoa =
+    decisor &&
+    decisor.toLowerCase() !== razao?.toLowerCase() &&
+    decisor.toLowerCase() !== fantasia?.toLowerCase()
+      ? decisor
+      : razao && razao.toLowerCase() !== fantasia?.toLowerCase()
+        ? razao
+        : null
+  if (pessoa) {
+    parts.push(`("${pessoa}" (LinkedIn OR Instagram OR Facebook))`)
+  }
+
+  // 5) CNPJ + Econodata / consultas
+  const digits = (item.cnpj || '').replace(/\D/g, '')
+  if (digits.length === 14) {
+    parts.push(`("${formatCnpj(digits)}" OR Econodata OR Serasa)`)
+  } else {
+    parts.push('(Econodata OR Serasa)')
+  }
+
+  return `https://www.google.com/search?q=${encodeURIComponent(parts.join(' '))}`
+}

@@ -12,6 +12,7 @@ import {
   formatMoney,
   formatPhone,
   formatPorte,
+  googleResearchUrl,
   isNaturezaTitular,
   loadSavedFilters,
   nomeDecisor,
@@ -851,11 +852,32 @@ function Prospectos() {
                   {item.nome_fantasia && <p className="fantasia">{item.nome_fantasia}</p>}
                   <p className="cnpj mono">{formatCnpj(item.cnpj)}</p>
                 </div>
-                <div className="tags">
-                  {item.tipo_estabelecimento && (
-                    <span className="tag soft">{item.tipo_estabelecimento}</span>
-                  )}
-                  {item.opcao_simples === 'S' && <span className="tag">Simples</span>}
+                <div className="result-top-actions">
+                  <a
+                    className="research-btn"
+                    href={googleResearchUrl(item)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Pesquisar empresa no Google"
+                    aria-label="Pesquisar empresa no Google"
+                  >
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+                      <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" strokeWidth="2" />
+                      <path
+                        d="M16.2 16.2 20 20"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </a>
+                  <div className="tags">
+                    {item.tipo_estabelecimento && (
+                      <span className="tag soft">{item.tipo_estabelecimento}</span>
+                    )}
+                    {item.opcao_simples === 'S' && <span className="tag">Simples</span>}
+                  </div>
                 </div>
               </div>
 
