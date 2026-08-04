@@ -92,6 +92,7 @@ export default function ProspectosBruno() {
   const [error, setError] = useState<string | null>(null)
   const [searched, setSearched] = useState(false)
   const [nichoQuery, setNichoQuery] = useState('')
+  const [subnichoQuery, setSubnichoQuery] = useState('')
   const [commandQuery, setCommandQuery] = useState(() => loadSavedFilters().q)
   const [openGroups, setOpenGroups] = useState({
     loc: true,
@@ -115,6 +116,15 @@ export default function ProspectosBruno() {
           const pai = data.nichos.find((n) => n.slug === saved.nicho)
           if (pai) setNichoQuery(pai.nome)
         }
+        if (saved.subnicho) {
+          for (const n of data.nichos) {
+            const filho = n.filhos.find((f) => f.slug === saved.subnicho)
+            if (filho) {
+              setSubnichoQuery(filho.nome)
+              break
+            }
+          }
+        }
       })
       .catch((err) => {
         setError(err.message || 'Falha ao carregar metadados')
@@ -134,6 +144,17 @@ export default function ProspectosBruno() {
     () => (meta?.nichos || []).find((n) => n.slug === filters.nicho) || null,
     [meta, filters.nicho],
   )
+
+  const subnichosFiltrados = useMemo(() => {
+    const filhos = nichoAtual?.filhos || []
+    const q = subnichoQuery.trim().toLowerCase()
+    if (!q || (filters.subnicho && filhos.some((f) => f.slug === filters.subnicho && f.nome.toLowerCase() === q))) {
+      return filhos
+    }
+    return filhos.filter(
+      (f) => f.nome.toLowerCase().includes(q) || f.slug.toLowerCase().includes(q),
+    )
+  }, [nichoAtual, subnichoQuery, filters.subnicho])
 
   const ufOptions = useMemo(() => {
     const list = meta?.ufs?.length ? meta.ufs : Object.keys(UF_NOMES)
@@ -158,6 +179,7 @@ export default function ProspectosBruno() {
     if (filters.ufs.length) n += 1
     if (filters.municipios.length) n += 1
     if (filters.nicho) n += 1
+    if (filters.subnicho) n += 1
     if (filters.porte) n += 1
     if (filters.tem_telefone) n += 1
     if (filters.tem_email) n += 1
@@ -232,6 +254,7 @@ export default function ProspectosBruno() {
     setFilters(defaultFilters)
     setCommandQuery('')
     setNichoQuery('')
+    setSubnichoQuery('')
     setItems([])
     setTotal(0)
     setTotalIsCapped(false)
@@ -245,14 +268,17 @@ export default function ProspectosBruno() {
     if (match) {
       update('nicho', match.slug)
       update('subnicho', '')
+      setSubnichoQuery('')
       return
     }
     if (!text.trim()) {
       update('nicho', '')
       update('subnicho', '')
+      setSubnichoQuery('')
     } else if (filters.nicho && nichoAtual && text !== nichoAtual.nome) {
       update('nicho', '')
       update('subnicho', '')
+      setSubnichoQuery('')
     }
   }
 
@@ -332,8 +358,22 @@ export default function ProspectosBruno() {
         update('nicho', '')
         update('subnicho', '')
         setNichoQuery('')
+        setSubnichoQuery('')
       },
     })
+  }
+  if (filters.subnicho && nichoAtual) {
+    const sub = nichoAtual.filhos.find((f) => f.slug === filters.subnicho)
+    if (sub) {
+      activeChips.push({
+        key: 'subnicho',
+        label: sub.nome,
+        clear: () => {
+          update('subnicho', '')
+          setSubnichoQuery('')
+        },
+      })
+    }
   }
 
   const pageButtons = useMemo(() => {
@@ -381,7 +421,7 @@ export default function ProspectosBruno() {
           />
         </div>
         <button className="app-button app-button--amber" type="submit" disabled={loading}>
-          {loading ? 'Buscando…' : 'Explorar'}
+          {loading ? 'Buscando…' : 'Buscar'}
           <span>↗</span>
         </button>
       </form>
@@ -465,6 +505,41 @@ export default function ProspectosBruno() {
               <datalist id="bruno-nichos">
                 {(meta?.nichos || []).map((n) => (
                   <option key={n.slug} value={n.nome} />
+                ))}
+              </datalist>
+            </div>
+            <label className="field-label" htmlFor="bruno-subnicho">
+              Subnicho
+            </label>
+            <div className="field-with-icon">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <circle cx="10" cy="10" r="6" />
+                <path d="M10 4v12M4 10h12" />
+              </svg>
+              <input
+                id="bruno-subnicho"
+                type="text"
+                list="bruno-subnichos"
+                placeholder={filters.nicho ? 'Todos ou refine…' : 'Primeiro escolha o nicho'}
+                value={
+                  filters.subnicho
+                    ? nichoAtual?.filhos.find((f) => f.slug === filters.subnicho)?.nome ||
+                      subnichoQuery
+                    : subnichoQuery
+                }
+                disabled={!filters.nicho}
+                onChange={(e) => {
+                  const text = e.target.value
+                  setSubnichoQuery(text)
+                  const match = (nichoAtual?.filhos || []).find(
+                    (f) => f.nome === text || f.slug === text,
+                  )
+                  update('subnicho', match ? match.slug : '')
+                }}
+              />
+              <datalist id="bruno-subnichos">
+                {subnichosFiltrados.map((f) => (
+                  <option key={f.slug} value={f.nome} />
                 ))}
               </datalist>
             </div>
@@ -713,7 +788,7 @@ export default function ProspectosBruno() {
               <div className="results-empty">
                 <span>⌁</span>
                 <h3>Pronto para explorar</h3>
-                <p>Use a barra de comando ou os filtros e clique em Explorar.</p>
+                <p>Use a barra de comando ou os filtros e clique em Buscar.</p>
               </div>
             )}
 
