@@ -560,31 +560,17 @@ export function whatsappUrl(phone?: string | null): string | null {
 }
 
 /**
- * Busca Google da empresa — query enxuta para o Google ranquear sozinho:
- * nome fantasia (ou razão) + CNPJ + cidade/UF.
- * Meu Negócio, site e redes tendem a aparecer sem OR excessivos.
+ * Busca Google da empresa — só nome fantasia (teste de relevância no Maps).
+ * Sem fantasia, cai na razão social.
  */
 export function googleResearchUrl(item: Prospecto): string {
-  const razao = item.razao_social?.trim()
   const fantasia = item.nome_fantasia?.trim()
-  const municipio = item.municipio_nome?.trim()
-  const uf = item.uf?.trim()
-  const parts: string[] = []
-
-  // Nome comercial primeiro; razão só se não houver fantasia
-  if (fantasia) parts.push(`"${fantasia}"`)
-  else if (razao) parts.push(`"${razao}"`)
-
-  const digits = (item.cnpj || '').replace(/\D/g, '')
-  if (digits.length === 14) {
-    parts.push(`"${formatCnpj(digits)}"`)
+  const razao = item.razao_social?.trim()
+  const nome = fantasia || razao
+  if (!nome) {
+    return `https://www.google.com/search?q=${encodeURIComponent('')}`
   }
-
-  if (municipio && uf) parts.push(`"${municipio}" ${uf}`)
-  else if (municipio) parts.push(`"${municipio}"`)
-  else if (uf) parts.push(uf)
-
-  return `https://www.google.com/search?q=${encodeURIComponent(parts.join(' '))}`
+  return `https://www.google.com/search?q=${encodeURIComponent(`"${nome}"`)}`
 }
 
 /**
