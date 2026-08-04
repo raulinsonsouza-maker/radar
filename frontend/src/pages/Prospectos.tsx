@@ -5,74 +5,20 @@ import {
   fetchMeta,
   fetchProspectos,
   fetchSocios,
-  formatCep,
-  formatCnpj,
-  formatDate,
-  formatIdade,
-  formatMoney,
-  formatPhone,
-  formatPorte,
-  googlePersonResearchUrl,
-  googleResearchUrl,
-  isNaturezaTitular,
   loadSavedFilters,
-  nomeDecisor,
   nomeUf,
   saveFilters,
   searchMunicipios,
   UF_NOMES,
-  whatsappUrl,
   type Filters,
   type MetaResponse,
   type Prospecto,
   type Socio,
 } from '../api'
+import {
+  ProspectResultCardB,
+} from '../components/prospectCards'
 import '../App.css'
-
-function IconLupa({ size = 16 }: { size?: number }) {
-  return (
-    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true" focusable="false">
-      <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" strokeWidth="2" />
-      <path
-        d="M16.2 16.2 20 20"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
-}
-
-function PersonResearchLink({
-  nome,
-  municipio,
-  uf,
-  empresa,
-  label = 'Pesquisar pessoa no Google',
-}: {
-  nome?: string | null
-  municipio?: string | null
-  uf?: string | null
-  empresa?: string | null
-  label?: string
-}) {
-  const href = nome ? googlePersonResearchUrl(nome, { municipio, uf, empresa }) : null
-  if (!href) return null
-  return (
-    <a
-      className="research-btn research-btn--inline"
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      title={label}
-      aria-label={label}
-      onClick={(e) => e.stopPropagation()}
-    >
-      <IconLupa size={13} />
-    </a>
-  )
-}
 
 function MultiPick({
   label,
@@ -855,21 +801,23 @@ function Prospectos() {
 
       <section className="panel results" aria-busy={loading}>
         <div className="results-head">
-          <h2>Resultados</h2>
-          {loading ? (
-            <span className="muted searching-label">
-              <span className="spinner sm" aria-hidden />
-              Consultando a base…
-            </span>
-          ) : (
-            searched && (
-              <span className="muted">
-                {totalIsCapped ? 'Mais de ' : ''}
-                {total.toLocaleString('pt-BR')} encontrados · página {filters.page} de{' '}
-                {totalPages}
+          <div className="results-head-main">
+            <h2>Resultados</h2>
+            {loading ? (
+              <span className="muted searching-label">
+                <span className="spinner sm" aria-hidden />
+                Consultando a base…
               </span>
-            )
-          )}
+            ) : (
+              searched && (
+                <span className="muted">
+                  {totalIsCapped ? 'Mais de ' : ''}
+                  {total.toLocaleString('pt-BR')} encontrados · página {filters.page} de{' '}
+                  {totalPages}
+                </span>
+              )
+            )}
+          </div>
         </div>
 
         {!searched && !loading && (
@@ -891,272 +839,15 @@ function Prospectos() {
         {!loading && (
         <div className="result-list">
           {items.map((item) => (
-            <article key={item.cnpj} className="result-card">
-              <div className="result-top">
-                <div className="result-title">
-                  <h3>{item.razao_social || 'Sem razão social'}</h3>
-                  {item.nome_fantasia && <p className="fantasia">{item.nome_fantasia}</p>}
-                  <p className="cnpj mono">{formatCnpj(item.cnpj)}</p>
-                </div>
-                <div className="result-top-actions">
-                  <a
-                    className="research-btn"
-                    href={googleResearchUrl(item)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title="Pesquisar empresa no Google"
-                    aria-label="Pesquisar empresa no Google"
-                  >
-                    <IconLupa />
-                  </a>
-                  <div className="tags">
-                    {item.tipo_estabelecimento && (
-                      <span className="tag soft">{item.tipo_estabelecimento}</span>
-                    )}
-                    {item.opcao_simples === 'S' && <span className="tag">Simples</span>}
-                  </div>
-                </div>
-              </div>
-
-              <div className="result-grid">
-                <div className="field">
-                  <span className="field-label">Atividade</span>
-                  <strong>{item.cnae_descricao || 'Sem descrição'}</strong>
-                  <span className="mono">{item.cnae_fiscal_principal || '—'}</span>
-                  {item.cnae_fiscal_secundaria && (
-                    <span className="muted-extra">
-                      Secundários: {item.cnae_fiscal_secundaria.split(',').slice(0, 3).join(', ')}
-                      {item.cnae_fiscal_secundaria.split(',').length > 3 ? '…' : ''}
-                    </span>
-                  )}
-                </div>
-                <div className="field">
-                  <span className="field-label">Local</span>
-                  <strong>
-                    {item.municipio_nome || '—'}
-                    {item.uf ? ` · ${item.uf}` : ''}
-                  </strong>
-                  <span>
-                    {[item.logradouro, item.numero].filter(Boolean).join(', ') ||
-                      'Endereço não informado'}
-                    {item.bairro ? ` · ${item.bairro}` : ''}
-                    {item.cep ? ` · ${formatCep(item.cep)}` : ''}
-                  </span>
-                </div>
-                <div className="field">
-                  <span className="field-label">Porte / capital</span>
-                  <strong>{formatPorte(item.porte, item.porte_descricao)}</strong>
-                  <span>{formatMoney(item.capital_social)}</span>
-                  {(item.qtd_filiais ?? 0) > 0 && (
-                    <span>
-                      {item.qtd_filiais} filial{item.qtd_filiais === 1 ? '' : 'is'}
-                    </span>
-                  )}
-                </div>
-                <div className="field">
-                  <span className="field-label">Contato</span>
-                  {(() => {
-                    const label = formatPhone(item.telefone) || 'Sem telefone'
-                    const wpp = whatsappUrl(item.telefone)
-                    if (wpp) {
-                      return (
-                        <a
-                          className="phone-wpp"
-                          href={wpp}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          title="Abrir no WhatsApp"
-                        >
-                          {label}
-                        </a>
-                      )
-                    }
-                    return <strong>{label}</strong>
-                  })()}
-                  {item.telefone_2 &&
-                    (() => {
-                      const label2 = formatPhone(item.telefone_2)
-                      const wpp2 = whatsappUrl(item.telefone_2)
-                      if (wpp2) {
-                        return (
-                          <a
-                            className="phone-wpp secondary-phone"
-                            href={wpp2}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            title="2º telefone"
-                          >
-                            {label2}
-                          </a>
-                        )
-                      }
-                      return <span>2º: {label2}</span>
-                    })()}
-                  {item.email ? (
-                    <a className="email" href={`mailto:${item.email}`}>
-                      {item.email.toLowerCase()}
-                    </a>
-                  ) : (
-                    <span>Sem e-mail</span>
-                  )}
-                </div>
-                <div className="field">
-                  <span className="field-label">Natureza / idade</span>
-                  <strong>{item.natureza_descricao || '—'}</strong>
-                  <span>
-                    Início: {formatDate(item.data_inicio_atividade)}
-                    {item.idade_anos != null ? ` · ${formatIdade(item.idade_anos)}` : ''}
-                  </span>
-                </div>
-                <div className="field">
-                  <span className="field-label">Decisor</span>
-                  {(() => {
-                    const decisor = nomeDecisor(item)
-                    return (
-                      <>
-                        <strong className="name-with-research">
-                          <span>{decisor.nome || 'Não identificado'}</span>
-                          <PersonResearchLink
-                            nome={decisor.nome}
-                            municipio={item.municipio_nome}
-                            uf={item.uf}
-                            empresa={item.nome_fantasia || item.razao_social}
-                            label="Pesquisar decisor no Google"
-                          />
-                        </strong>
-                        <span>
-                          {decisor.tipo === 'titular'
-                            ? 'Titular da empresa'
-                            : item.qtd_socios != null
-                              ? `${item.qtd_socios} sócio${item.qtd_socios === 1 ? '' : 's'} no quadro`
-                              : 'Quadro societário'}
-                        </span>
-                      </>
-                    )
-                  })()}
-                </div>
-              </div>
-
-              <div className="socios-block">
-                <button
-                  type="button"
-                  className="socios-toggle"
-                  aria-expanded={!!sociosOpen[item.cnpj]}
-                  onClick={() => void toggleSocios(item.cnpj)}
-                >
-                  {sociosOpen[item.cnpj]
-                    ? isNaturezaTitular(item.natureza_juridica) && (item.qtd_socios ?? 0) === 0
-                      ? 'Ocultar titular'
-                      : 'Ocultar sócios'
-                    : isNaturezaTitular(item.natureza_juridica) && (item.qtd_socios ?? 0) === 0
-                      ? 'Ver titular'
-                      : 'Ver sócios'}
-                </button>
-
-                {sociosOpen[item.cnpj] && (
-                  <div className="socios-panel">
-                    {sociosLoading[item.cnpj] && (
-                      <p className="socios-status">Carregando…</p>
-                    )}
-                    {sociosError[item.cnpj] && (
-                      <p className="socios-status error">{sociosError[item.cnpj]}</p>
-                    )}
-                    {!sociosLoading[item.cnpj] &&
-                      !sociosError[item.cnpj] &&
-                      sociosCache[item.cnpj] &&
-                      sociosCache[item.cnpj].length === 0 &&
-                      isNaturezaTitular(item.natureza_juridica) &&
-                      item.razao_social && (
-                        <ul className="socios-list">
-                          <li className="socio-item admin">
-                            <div className="socio-main">
-                              <strong className="name-with-research">
-                                <span>{item.razao_social}</span>
-                                <PersonResearchLink
-                                  nome={item.razao_social}
-                                  municipio={item.municipio_nome}
-                                  uf={item.uf}
-                                  empresa={item.nome_fantasia || item.razao_social}
-                                  label="Pesquisar titular no Google"
-                                />
-                                <span className="admin-badge">Titular</span>
-                              </strong>
-                              <span className="socio-meta">
-                                {item.natureza_descricao || 'Empresário individual'}
-                              </span>
-                            </div>
-                          </li>
-                        </ul>
-                      )}
-                    {!sociosLoading[item.cnpj] &&
-                      !sociosError[item.cnpj] &&
-                      sociosCache[item.cnpj] &&
-                      sociosCache[item.cnpj].length === 0 &&
-                      !(
-                        isNaturezaTitular(item.natureza_juridica) && item.razao_social
-                      ) && (
-                        <p className="socios-status">Nenhum sócio encontrado.</p>
-                      )}
-                    {!sociosLoading[item.cnpj] &&
-                      sociosCache[item.cnpj] &&
-                      sociosCache[item.cnpj].length > 0 && (
-                        <ul className="socios-list">
-                          {sociosCache[item.cnpj].map((socio, idx) => (
-                            <li
-                              key={`${item.cnpj}-${socio.cnpj_cpf_socio || ''}-${idx}`}
-                              className={`socio-item${socio.eh_admin ? ' admin' : ''}`}
-                            >
-                              <div className="socio-main">
-                                <strong className="name-with-research">
-                                  <span>{socio.nome_socio || 'Sem nome'}</span>
-                                  <PersonResearchLink
-                                    nome={socio.nome_socio}
-                                    municipio={item.municipio_nome}
-                                    uf={item.uf}
-                                    empresa={item.nome_fantasia || item.razao_social}
-                                    label={
-                                      socio.eh_admin
-                                        ? 'Pesquisar decisor no Google'
-                                        : 'Pesquisar sócio no Google'
-                                    }
-                                  />
-                                  {socio.eh_admin && (
-                                    <span className="admin-badge">Decisor</span>
-                                  )}
-                                </strong>
-                                <span className="socio-meta">
-                                  {[
-                                    socio.tipo_socio,
-                                    socio.qualificacao_descricao,
-                                    socio.cnpj_cpf_socio,
-                                    socio.faixa_etaria_descricao,
-                                  ]
-                                    .filter(Boolean)
-                                    .join(' · ')}
-                                </span>
-                              </div>
-                              <div className="socio-side">
-                                <span>
-                                  Entrada: {formatDate(socio.data_entrada_sociedade)}
-                                </span>
-                                {socio.pais_nome && <span>{socio.pais_nome}</span>}
-                                {socio.nome_representante && (
-                                  <span>
-                                    Rep.: {socio.nome_representante}
-                                    {socio.qualificacao_representante_descricao
-                                      ? ` (${socio.qualificacao_representante_descricao})`
-                                      : ''}
-                                  </span>
-                                )}
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                  </div>
-                )}
-              </div>
-            </article>
+            <ProspectResultCardB
+              key={item.cnpj}
+              item={item}
+              sociosOpen={!!sociosOpen[item.cnpj]}
+              sociosLoading={!!sociosLoading[item.cnpj]}
+              sociosError={sociosError[item.cnpj]}
+              socios={sociosCache[item.cnpj]}
+              onToggleSocios={() => void toggleSocios(item.cnpj)}
+            />
           ))}
         </div>
         )}
