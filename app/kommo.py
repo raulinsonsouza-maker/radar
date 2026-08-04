@@ -7,7 +7,7 @@ import httpx
 
 # Conta Symbius (symbius.kommo.com) — funil principal
 DEFAULT_PIPELINE_ID = 11592391
-DEFAULT_STATUS_ID = 89030651  # coluna "Leads"
+DEFAULT_STATUS_ID = 109916160  # coluna "Radar"
 DEFAULT_TAG_NAME = "Radar"
 DEFAULT_TAG_COLOR = "FF8F92"  # vermelho na paleta Kommo
 DEFAULT_TAG_ID = 143385

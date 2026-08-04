@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     kommo_token: str = ""
     kommo_subdomain: str = "symbius"
     kommo_pipeline_id: int = 11592391
-    kommo_status_id: int = 89030651
+    kommo_status_id: int = 109916160
     kommo_tag_id: int = 143385
     kommo_integration_id: str = ""
 
