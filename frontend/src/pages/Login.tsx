@@ -1,12 +1,6 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
-import {
-  loadUiLayout,
-  saveUiLayout,
-  syncUiLayoutQuery,
-  type UiLayout,
-} from '../uiLayout'
 import '../App.css'
 import '../bruno-landing.css'
 import './login-bruno.css'
@@ -30,18 +24,12 @@ export default function Login() {
   const { user, loading, login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const [layout, setLayout] = useState<UiLayout>(() => loadUiLayout())
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   const from = (location.state as { from?: string } | null)?.from
-
-  useEffect(() => {
-    saveUiLayout(layout)
-    syncUiLayoutQuery(layout)
-  }, [layout])
 
   if (!loading && user) {
     const dest =
@@ -67,120 +55,84 @@ export default function Login() {
     }
   }
 
-  const form = (
-    <form className="login-form" onSubmit={(e) => void onSubmit(e)}>
-      <label>
-        E-mail
-        <input
-          type="email"
-          autoComplete="username"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </label>
-      <label>
-        Senha
-        <input
-          type="password"
-          autoComplete="current-password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </label>
-      {error && <div className="banner error">{error}</div>}
-      <button
-        type="submit"
-        className={layout === 'bruno' ? 'button button--amber button--wide' : 'btn primary'}
-        disabled={submitting || loading}
-      >
-        {submitting ? 'Entrando…' : 'Entrar'}
-      </button>
-    </form>
-  )
-
-  if (layout === 'bruno') {
-    return (
-      <div className="lp-bruno login-bruno">
-        <header className="login-bruno__top">
-          <BrandMark />
-          <div className="lp-layout-toggle" role="group" aria-label="Layout A/B">
-            <button type="button" onClick={() => setLayout('atual')}>
-              Atual
-            </button>
-            <button type="button" className="is-on" onClick={() => setLayout('bruno')}>
-              Bruno
-            </button>
-          </div>
-        </header>
-
-        <main className="login-bruno__main">
-          <section className="login-bruno__aside" aria-hidden="true">
-            <div className="login-bruno__orbit">
-              <span className="login-bruno__ring login-bruno__ring--one" />
-              <span className="login-bruno__ring login-bruno__ring--two" />
-              <span className="login-bruno__ring login-bruno__ring--three" />
-              <span className="login-bruno__core">
-                <b>RADAR</b>
-                <small>live</small>
-              </span>
-            </div>
-            <div className="login-bruno__aside-copy">
-              <div className="eyebrow">
-                <span className="eyebrow__index">01</span>
-                Acesso
-              </div>
-              <h2>
-                Seu mercado
-                <br />
-                <span>já está no Radar.</span>
-              </h2>
-              <p>Entre para explorar empresas com filtros comerciais e contatos prontos para abordagem.</p>
-            </div>
-          </section>
-
-          <section className="login-bruno__panel">
-            <div className="login-bruno__card">
-              <div className="eyebrow eyebrow--dark">
-                <span className="eyebrow__index">02</span>
-                Conta
-              </div>
-              <h1>Entrar no Radar</h1>
-              <p className="login-bruno__lead">
-                Use o e-mail e a senha fornecidos pela Symbius.
-              </p>
-              {form}
-              <Link className="login-bruno__back" to="/?layout=bruno">
-                ← Voltar ao site
-              </Link>
-            </div>
-          </section>
-        </main>
-      </div>
-    )
-  }
-
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <div className="login-card__head">
-          <Link to="/" className="login-brand">
-            <img src="/logotipo-branco.png" alt="Symbius" />
-          </Link>
-          <div className="lp-layout-toggle layout-toggle-light" role="group" aria-label="Layout A/B">
-            <button type="button" className="is-on" onClick={() => setLayout('atual')}>
-              Atual
-            </button>
-            <button type="button" onClick={() => setLayout('bruno')}>
-              Bruno
-            </button>
+    <div className="lp-bruno login-bruno">
+      <header className="login-bruno__top">
+        <BrandMark />
+      </header>
+
+      <main className="login-bruno__main">
+        <section className="login-bruno__aside" aria-hidden="true">
+          <div className="login-bruno__orbit">
+            <span className="login-bruno__ring login-bruno__ring--one" />
+            <span className="login-bruno__ring login-bruno__ring--two" />
+            <span className="login-bruno__ring login-bruno__ring--three" />
+            <span className="login-bruno__core">
+              <b>RADAR</b>
+              <small>live</small>
+            </span>
           </div>
-        </div>
-        <h1>Entrar</h1>
-        <p className="muted">Acesse a prospecção com o e-mail e senha fornecidos.</p>
-        {form}
-      </div>
+          <div className="login-bruno__aside-copy">
+            <div className="eyebrow">
+              <span className="eyebrow__index">01</span>
+              Acesso
+            </div>
+            <h2>
+              Seu mercado
+              <br />
+              <span>já está no Radar.</span>
+            </h2>
+            <p>
+              Entre para explorar empresas com filtros comerciais e contatos prontos para
+              abordagem.
+            </p>
+          </div>
+        </section>
+
+        <section className="login-bruno__panel">
+          <div className="login-bruno__card">
+            <div className="eyebrow eyebrow--dark">
+              <span className="eyebrow__index">02</span>
+              Conta
+            </div>
+            <h1>Entrar no Radar</h1>
+            <p className="login-bruno__lead">Use o e-mail e a senha fornecidos pela Symbius.</p>
+            <form className="login-form" onSubmit={(e) => void onSubmit(e)}>
+              <label>
+                E-mail
+                <input
+                  type="email"
+                  autoComplete="username"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </label>
+              <label>
+                Senha
+                <input
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </label>
+              {error && <div className="banner error">{error}</div>}
+              <button
+                type="submit"
+                className="button button--amber button--wide"
+                disabled={submitting || loading}
+              >
+                {submitting ? 'Entrando…' : 'Entrar'}
+              </button>
+            </form>
+            <Link className="login-bruno__back" to="/">
+              ← Voltar ao site
+            </Link>
+          </div>
+        </section>
+      </main>
     </div>
   )
 }

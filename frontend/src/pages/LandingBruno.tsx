@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { saveUiLayout, syncUiLayoutQuery, type UiLayout } from '../uiLayout'
 import '../bruno-landing.css'
 
 function BrandMark({ light = false }: { light?: boolean }) {
@@ -22,50 +21,7 @@ function BrandMark({ light = false }: { light?: boolean }) {
   )
 }
 
-function LayoutToggle({
-  layout,
-  onChange,
-}: {
-  layout: UiLayout
-  onChange: (next: UiLayout) => void
-}) {
-  return (
-    <div className="lp-layout-toggle" role="group" aria-label="Layout A/B da landing">
-      <button
-        type="button"
-        className={layout === 'atual' ? 'is-on' : undefined}
-        onClick={() => onChange('atual')}
-      >
-        Atual
-      </button>
-      <button
-        type="button"
-        className={layout === 'bruno' ? 'is-on' : undefined}
-        onClick={() => onChange('bruno')}
-      >
-        Bruno
-      </button>
-    </div>
-  )
-}
-
-export function LandingLayoutToggle({
-  layout,
-  onChange,
-}: {
-  layout: UiLayout
-  onChange: (next: UiLayout) => void
-}) {
-  return <LayoutToggle layout={layout} onChange={onChange} />
-}
-
-export default function LandingBruno({
-  layout,
-  onLayoutChange,
-}: {
-  layout: UiLayout
-  onLayoutChange: (next: UiLayout) => void
-}) {
+export default function LandingBruno() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
@@ -88,11 +44,6 @@ export default function LandingBruno({
     items.forEach((el) => observer.observe(el))
     return () => observer.disconnect()
   }, [])
-
-  useEffect(() => {
-    saveUiLayout(layout)
-    syncUiLayoutQuery(layout)
-  }, [layout])
 
   return (
     <div className="lp-bruno landing-page">
@@ -633,8 +584,6 @@ export default function LandingBruno({
           </div>
         </div>
       </footer>
-
-      <LayoutToggle layout={layout} onChange={onLayoutChange} />
     </div>
   )
 }
