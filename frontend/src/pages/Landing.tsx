@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom'
+import { LandingLayoutToggle } from './LandingBruno'
+import type { UiLayout } from '../uiLayout'
 import '../App.css'
+import '../bruno-landing.css'
 
 /** Número WhatsApp de vendas com DDI (ex: 5511999999999). Vazio → CTA vai para #oferta. */
 const VENDAS_WHATSAPP = ''
@@ -14,7 +17,13 @@ function vendasHref(): string {
   return `https://wa.me/${digits}?text=${WA_MSG}`
 }
 
-export default function Landing() {
+export default function Landing({
+  layout = 'atual',
+  onLayoutChange,
+}: {
+  layout?: UiLayout
+  onLayoutChange?: (next: UiLayout) => void
+}) {
   const hireHref = vendasHref()
   const hireExternal = hireHref.startsWith('http')
   const hireProps = hireExternal
@@ -317,6 +326,10 @@ export default function Landing() {
         <img src="/logotipo-branco.png" alt="" />
         <span>© {new Date().getFullYear()} Symbius · Radar</span>
       </footer>
+
+      {onLayoutChange ? (
+        <LandingLayoutToggle layout={layout} onChange={onLayoutChange} />
+      ) : null}
     </div>
   )
 }

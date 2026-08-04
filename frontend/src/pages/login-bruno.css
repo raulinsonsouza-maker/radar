@@ -1,0 +1,365 @@
+.login-bruno {
+  --ink: #0b0c0b;
+  --paper: #efeee9;
+  --amber: #e7a957;
+  --amber-bright: #ffb44c;
+  --amber-soft: #f0c887;
+  --green: #6bd39a;
+  --line: rgba(255, 255, 255, 0.1);
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "DM Mono", "SFMono-Regular", Consolas, monospace;
+  min-height: 100vh;
+  color: #eceee9;
+  background: #0b0c0b;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.login-bruno *,
+.login-bruno *::before,
+.login-bruno *::after {
+  box-sizing: border-box;
+}
+
+.login-bruno .brand.brand--inline {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0 !important;
+  color: #fafaf7;
+  text-decoration: none;
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.login-bruno .brand__mark {
+  width: 28px;
+  height: 28px;
+  margin-right: 8px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.login-bruno .brand__product {
+  margin-left: 8px;
+  padding-left: 8px;
+  color: #969a92;
+  font-weight: 500;
+  border-left: 1px solid currentColor;
+}
+
+.login-bruno__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+  padding: 0 clamp(18px, 3vw, 32px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(11, 12, 11, 0.92);
+  backdrop-filter: blur(14px);
+}
+
+.login-bruno__main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+  min-height: calc(100vh - 72px);
+}
+
+.login-bruno__aside {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 28px;
+  padding: clamp(32px, 5vw, 64px);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 58% 42%, rgba(231, 169, 87, 0.16), transparent 28%),
+    linear-gradient(160deg, #121411, #0b0c0b 70%);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.login-bruno__orbit {
+  position: absolute;
+  top: 42%;
+  left: 52%;
+  width: min(420px, 70%);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.login-bruno__ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.login-bruno__ring--one {
+  width: 74%;
+  height: 74%;
+}
+
+.login-bruno__ring--two {
+  width: 48%;
+  height: 48%;
+}
+
+.login-bruno__ring--three {
+  width: 22%;
+  height: 22%;
+}
+
+.login-bruno__core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 78px;
+  height: 78px;
+  place-content: center;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  background: #0b0c0b;
+  border-radius: 50%;
+  box-shadow: 0 0 0 8px rgba(231, 169, 87, 0.08);
+}
+
+.login-bruno__core b {
+  color: #fafaf7;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+}
+
+.login-bruno__core small {
+  margin-top: 4px;
+  color: var(--amber);
+  font-family: var(--font-mono);
+  font-size: 9px;
+}
+
+.login-bruno__aside-copy {
+  position: relative;
+  z-index: 2;
+  max-width: 420px;
+}
+
+.login-bruno__aside-copy .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  color: var(--amber-soft);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.login-bruno__aside-copy .eyebrow__index {
+  display: inline-grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.login-bruno__aside-copy h2 {
+  margin: 0;
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.login-bruno__aside-copy h2 span {
+  color: #8b8f87;
+}
+
+.login-bruno__aside-copy p {
+  margin: 16px 0 0;
+  color: #8b8f87;
+  font-size: 15px;
+  line-height: 1.55;
+  max-width: 36ch;
+}
+
+.login-bruno__panel {
+  display: grid;
+  place-items: center;
+  padding: clamp(28px, 4vw, 48px);
+  background: #efeee9;
+  color: #0b0c0b;
+}
+
+.login-bruno__card {
+  width: min(420px, 100%);
+}
+
+.login-bruno__card .eyebrow--dark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  color: #575a55;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.login-bruno__card .eyebrow__index {
+  display: inline-grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.login-bruno__card h1 {
+  margin: 0;
+  font-size: clamp(28px, 3vw, 36px);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+}
+
+.login-bruno__lead {
+  margin: 12px 0 28px;
+  color: #5d605a;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.login-bruno .login-form {
+  display: grid;
+  gap: 14px;
+}
+
+.login-bruno .login-form label {
+  display: grid;
+  gap: 8px;
+  color: #5d605a;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.login-bruno .login-form input {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px;
+  color: #0b0c0b;
+  background: #fafaf7;
+  border: 1px solid rgba(11, 12, 11, 0.14);
+  border-radius: 8px;
+  font-size: 15px;
+  outline: 0;
+}
+
+.login-bruno .login-form input:focus {
+  border-color: rgba(231, 169, 87, 0.7);
+  box-shadow: 0 0 0 3px rgba(231, 169, 87, 0.12);
+}
+
+.login-bruno .banner.error {
+  margin: 0;
+  padding: 12px 14px;
+  color: #8a2e28;
+  background: rgba(245, 101, 91, 0.12);
+  border: 1px solid rgba(245, 101, 91, 0.28);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.login-bruno .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.login-bruno .button--wide {
+  width: 100%;
+}
+
+.login-bruno .button--amber {
+  color: #17140f;
+  background: var(--amber);
+  border-color: var(--amber);
+}
+
+.login-bruno .button--amber:hover:not(:disabled) {
+  background: var(--amber-bright);
+  border-color: var(--amber-bright);
+}
+
+.login-bruno .button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.login-bruno__back {
+  display: inline-block;
+  margin-top: 22px;
+  color: #6d7169;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.login-bruno__back:hover {
+  color: #0b0c0b;
+}
+
+.login-bruno .lp-layout-toggle {
+  position: static;
+  box-shadow: none;
+}
+
+.login-page .login-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.login-page .lp-layout-toggle {
+  position: static;
+}
+
+@media (max-width: 900px) {
+  .login-bruno__main {
+    grid-template-columns: 1fr;
+  }
+
+  .login-bruno__aside {
+    min-height: 280px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .login-bruno__orbit {
+    top: 38%;
+    opacity: 0.55;
+  }
+}
