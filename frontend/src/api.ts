@@ -560,57 +560,29 @@ export function whatsappUrl(phone?: string | null): string | null {
 }
 
 /**
- * Busca Google da empresa — estrutura que favorece Meu Negócio/Maps:
- * marca + fantasia + razão + cidade, site/redes da marca, CNPJ/Econodata.
- * Não inclui sócios/decisor (isso fica na lupa da pessoa).
+ * Busca Google da empresa — query enxuta para o Google ranquear sozinho:
+ * nome fantasia (ou razão) + CNPJ + cidade/UF.
+ * Meu Negócio, site e redes tendem a aparecer sem OR excessivos.
  */
 export function googleResearchUrl(item: Prospecto): string {
   const razao = item.razao_social?.trim()
   const fantasia = item.nome_fantasia?.trim()
   const municipio = item.municipio_nome?.trim()
   const uf = item.uf?.trim()
-
-  const shortBrand = (label?: string | null) =>
-    label
-      ?.split(/[\s&/\-|,]+/)
-      .map((w) => w.trim())
-      .find((w) => w.length >= 4 && !/^(ltda|me|eireli|sa|epp|epp|ss)$/i.test(w)) || null
-
-  // Marca curta a partir da fantasia; se não houver, da razão (ajuda Maps)
-  const brand = shortBrand(fantasia) || shortBrand(razao)
-
   const parts: string[] = []
 
-  if (brand) parts.push(brand)
+  // Nome comercial primeiro; razão só se não houver fantasia
+  if (fantasia) parts.push(`"${fantasia}"`)
+  else if (razao) parts.push(`"${razao}"`)
 
-  if (fantasia && fantasia.toLowerCase() !== brand?.toLowerCase()) {
-    parts.push(`"${fantasia}"`)
-  }
-
-  // Razão social amplia o match do Meu Negócio (muitos cadastros usam o nome legal)
-  if (
-    razao &&
-    razao.toLowerCase() !== fantasia?.toLowerCase() &&
-    razao.toLowerCase() !== brand?.toLowerCase()
-  ) {
-    parts.push(`"${razao}"`)
-  } else if (!fantasia && !brand && razao) {
-    parts.push(`"${razao}"`)
+  const digits = (item.cnpj || '').replace(/\D/g, '')
+  if (digits.length === 14) {
+    parts.push(`"${formatCnpj(digits)}"`)
   }
 
   if (municipio && uf) parts.push(`"${municipio}" ${uf}`)
   else if (municipio) parts.push(`"${municipio}"`)
   else if (uf) parts.push(uf)
-
-  // Mesmos sinais da versão que trazia Maps + perfis da empresa
-  parts.push('(site OR Instagram OR Facebook OR LinkedIn OR "Google Meu Negócio")')
-
-  const digits = (item.cnpj || '').replace(/\D/g, '')
-  if (digits.length === 14) {
-    parts.push(`("${formatCnpj(digits)}" OR Econodata OR Serasa)`)
-  } else {
-    parts.push('(Econodata OR Serasa)')
-  }
 
   return `https://www.google.com/search?q=${encodeURIComponent(parts.join(' '))}`
 }
