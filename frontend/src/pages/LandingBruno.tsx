@@ -95,7 +95,7 @@ export default function LandingBruno() {
               Entrar
             </Link>
             <a className="button button--dark button--small" href="#contato">
-              Quero contato
+              Falar com a Symbius
               <span aria-hidden="true">↗</span>
             </a>
           </div>
@@ -131,7 +131,7 @@ export default function LandingBruno() {
               </p>
               <div className="hero__actions">
                 <a className="button button--dark" href="#contato">
-                  Quero ser contactado
+                  Falar com a Symbius
                   <span aria-hidden="true">↗</span>
                 </a>
                 <a className="button button--ghost-dark" href="#produto">
@@ -542,15 +542,11 @@ export default function LandingBruno() {
               </div>
               {leadDone ? (
                 <div className="lead-card__success" role="status">
-                  <strong>Recebemos seu contato.</strong>
-                  <p>Em breve a Symbius fala com você pelo WhatsApp ou e-mail.</p>
-                  <button
-                    type="button"
-                    className="button button--light button--wide"
-                    onClick={() => setLeadDone(false)}
-                  >
-                    Enviar outro contato
-                  </button>
+                  <strong>Obrigado!</strong>
+                  <p>
+                    Recebemos seus dados. Em breve entraremos em contato pelo
+                    WhatsApp ou e-mail.
+                  </p>
                 </div>
               ) : (
                 <form className="lead-form" onSubmit={onLeadSubmit} noValidate>
@@ -604,7 +600,7 @@ export default function LandingBruno() {
                     type="submit"
                     disabled={leadSubmitting}
                   >
-                    {leadSubmitting ? 'Enviando…' : 'Quero ser contactado'}
+                    {leadSubmitting ? 'Enviando…' : 'Falar com a Symbius'}
                     <span>↗</span>
                   </button>
                   <small className="lead-form__hint">
@@ -629,7 +625,7 @@ export default function LandingBruno() {
               </h2>
             </div>
             <a className="button button--light" href="#contato">
-              Pedir contato <span>↗</span>
+              Falar com a Symbius <span>↗</span>
             </a>
           </div>
         </section>
