@@ -574,12 +574,11 @@ export function googleResearchUrl(item: Prospecto): string {
 }
 
 /**
- * Busca Google da pessoa (decisor/sócio/dono): só LinkedIn / Instagram / Facebook.
- * Exclui diretórios de CNPJ e gera variantes do nome (ex.: Silvana Galloni Martins).
+ * Busca Google da pessoa (decisor/sócio/dono) — só o nome, sem filtros extras.
  */
 export function googlePersonResearchUrl(
   nome: string,
-  opts?: {
+  _opts?: {
     municipio?: string | null
     uf?: string | null
     empresa?: string | null
@@ -587,40 +586,5 @@ export function googlePersonResearchUrl(
 ): string | null {
   const name = nome?.trim()
   if (!name) return null
-
-  const nameParts = name.split(/\s+/).filter(Boolean)
-  const variants = new Set<string>([name])
-  if (nameParts.length >= 3) {
-    // Sem nomes do meio: Silvana Galloni Martins
-    variants.add(`${nameParts[0]} ${nameParts[nameParts.length - 2]} ${nameParts[nameParts.length - 1]}`)
-    // Primeiro + último: Silvana Martins
-    variants.add(`${nameParts[0]} ${nameParts[nameParts.length - 1]}`)
-  }
-
-  const nameClause = [...variants].map((v) => `"${v}"`).join(' OR ')
-  const parts: string[] = [`(${nameClause})`]
-
-  // Marca curta da empresa só para desambiguar (fantasia longa puxa Serasa/CNPJ Biz)
-  const empresa = opts?.empresa?.trim()
-  if (empresa && empresa.toLowerCase() !== name.toLowerCase()) {
-    const brand = empresa
-      .split(/[\s&/\-|,]+/)
-      .map((w) => w.trim())
-      .find((w) => w.length >= 4 && !/^(ltda|me|eireli|sa|epp)$/i.test(w))
-    if (brand) parts.push(brand)
-  }
-
-  const municipio = opts?.municipio?.trim()
-  const uf = opts?.uf?.trim()
-  if (municipio && uf) parts.push(`"${municipio}" ${uf}`)
-  else if (municipio) parts.push(`"${municipio}"`)
-
-  // Apenas domínios de rede — sem "LinkedIn OR Instagram" soltos (isso libera diretórios)
-  parts.push('(site:linkedin.com OR site:br.linkedin.com OR site:instagram.com OR site:facebook.com)')
-
-  parts.push(
-    '-site:cnpj.biz -site:econodata.com.br -site:serasaexperian.com.br -site:casadosdados.com.br -site:cnpja.com -site:cnpj.info',
-  )
-
-  return `https://www.google.com/search?q=${encodeURIComponent(parts.join(' '))}`
+  return `https://www.google.com/search?q=${encodeURIComponent(`"${name}"`)}`
 }
