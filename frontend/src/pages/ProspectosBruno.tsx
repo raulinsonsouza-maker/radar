@@ -97,7 +97,7 @@ export default function ProspectosBruno() {
   const [openGroups, setOpenGroups] = useState({
     loc: true,
     perfil: true,
-    contato: true,
+    contato: false,
     cadastro: false,
     maturidade: false,
   })
