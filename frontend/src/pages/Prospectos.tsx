@@ -323,7 +323,9 @@ function Prospectos() {
     if (filters.data_inicio_ate) n += 1
     if (filters.idade_min) n += 1
     if (filters.idade_max) n += 1
-    if (filters.natureza_grupo && filters.natureza_grupo !== 'alta') n += 1
+    if (filters.tem_telefone_2) n += 1
+    if (filters.tem_email) n += 1
+    if (filters.tem_socio_admin) n += 1
     return n
   }, [filters])
 
@@ -515,17 +517,6 @@ function Prospectos() {
               onChange={(municipios) => update('municipios', municipios)}
             />
             <label>
-              Situação
-              <select value={filters.situacao} onChange={(e) => update('situacao', e.target.value)}>
-                <option value="">Qualquer</option>
-                {(meta?.situacoes || []).map((s) => (
-                  <option key={s.codigo} value={s.codigo}>
-                    {s.descricao}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
               Natureza
               <select
                 value={filters.natureza || `grupo:${filters.natureza_grupo || 'none'}`}
@@ -624,30 +615,6 @@ function Prospectos() {
             />
             Tem telefone
           </label>
-          <label className={`toggle-chip ${filters.tem_telefone_2 ? 'on' : ''}`}>
-            <input
-              type="checkbox"
-              checked={filters.tem_telefone_2}
-              onChange={(e) => update('tem_telefone_2', e.target.checked)}
-            />
-            Tem 2º telefone
-          </label>
-          <label className={`toggle-chip ${filters.tem_email ? 'on' : ''}`}>
-            <input
-              type="checkbox"
-              checked={filters.tem_email}
-              onChange={(e) => update('tem_email', e.target.checked)}
-            />
-            Tem e-mail
-          </label>
-          <label className={`toggle-chip ${filters.tem_socio_admin ? 'on' : ''}`}>
-            <input
-              type="checkbox"
-              checked={filters.tem_socio_admin}
-              onChange={(e) => update('tem_socio_admin', e.target.checked)}
-            />
-            Tem sócio-admin
-          </label>
         </div>
 
         <div className="advanced-wrap">
@@ -663,94 +630,145 @@ function Prospectos() {
           </button>
 
           {showAdvanced && (
-            <div className="filters-grid advanced-grid">
-              <label>
-                CNAE específico
-                <input
-                  list="cnaes"
-                  placeholder="Código ou descrição"
-                  value={filters.cnae}
-                  onChange={(e) => update('cnae', e.target.value)}
-                />
-                <datalist id="cnaes">
-                  {(meta?.cnaes || []).map((c) => (
-                    <option key={c.codigo} value={c.codigo}>
-                      {c.descricao}
-                    </option>
-                  ))}
-                </datalist>
-              </label>
-              <label>
-                Simples Nacional
-                <select
-                  value={filters.opcao_simples}
-                  onChange={(e) => update('opcao_simples', e.target.value)}
-                >
-                  <option value="">Qualquer</option>
-                  <option value="S">Sim</option>
-                  <option value="N">Não</option>
-                </select>
-              </label>
-              <label>
-                Capital mín.
-                <input
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  placeholder="R$"
-                  value={filters.capital_min}
-                  onChange={(e) => update('capital_min', e.target.value)}
-                />
-              </label>
-              <label>
-                Capital máx.
-                <input
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  placeholder="R$"
-                  value={filters.capital_max}
-                  onChange={(e) => update('capital_max', e.target.value)}
-                />
-              </label>
-              <label>
-                Abertura de
-                <input
-                  type="date"
-                  value={filters.data_inicio_de}
-                  onChange={(e) => update('data_inicio_de', e.target.value)}
-                />
-              </label>
-              <label>
-                Abertura até
-                <input
-                  type="date"
-                  value={filters.data_inicio_ate}
-                  onChange={(e) => update('data_inicio_ate', e.target.value)}
-                />
-              </label>
-              <label>
-                Idade mín. (anos)
-                <input
-                  type="number"
-                  min={0}
-                  max={200}
-                  placeholder="Ex.: 2"
-                  value={filters.idade_min}
-                  onChange={(e) => update('idade_min', e.target.value)}
-                />
-              </label>
-              <label>
-                Idade máx. (anos)
-                <input
-                  type="number"
-                  min={0}
-                  max={200}
-                  placeholder="Ex.: 15"
-                  value={filters.idade_max}
-                  onChange={(e) => update('idade_max', e.target.value)}
-                />
-              </label>
+            <div className="advanced-panel">
+              <section className="advanced-section">
+                <h4 className="advanced-section-title">Contato e abordagem</h4>
+                <p className="advanced-section-hint">Refine quem tem canais e decisão de contato</p>
+                <div className="filter-toggles">
+                  <label className={`toggle-chip ${filters.tem_telefone_2 ? 'on' : ''}`}>
+                    <input
+                      type="checkbox"
+                      checked={filters.tem_telefone_2}
+                      onChange={(e) => update('tem_telefone_2', e.target.checked)}
+                    />
+                    Tem 2º telefone
+                  </label>
+                  <label className={`toggle-chip ${filters.tem_email ? 'on' : ''}`}>
+                    <input
+                      type="checkbox"
+                      checked={filters.tem_email}
+                      onChange={(e) => update('tem_email', e.target.checked)}
+                    />
+                    Tem e-mail
+                  </label>
+                  <label className={`toggle-chip ${filters.tem_socio_admin ? 'on' : ''}`}>
+                    <input
+                      type="checkbox"
+                      checked={filters.tem_socio_admin}
+                      onChange={(e) => update('tem_socio_admin', e.target.checked)}
+                    />
+                    Tem sócio-admin
+                  </label>
+                </div>
+              </section>
+
+              <section className="advanced-section">
+                <h4 className="advanced-section-title">Atividade e regime</h4>
+                <p className="advanced-section-hint">CNAE pontual e opção pelo Simples Nacional</p>
+                <div className="filters-grid advanced-grid">
+                  <label>
+                    CNAE específico
+                    <input
+                      list="cnaes"
+                      placeholder="Código ou descrição"
+                      value={filters.cnae}
+                      onChange={(e) => update('cnae', e.target.value)}
+                    />
+                    <datalist id="cnaes">
+                      {(meta?.cnaes || []).map((c) => (
+                        <option key={c.codigo} value={c.codigo}>
+                          {c.descricao}
+                        </option>
+                      ))}
+                    </datalist>
+                  </label>
+                  <label>
+                    Simples Nacional
+                    <select
+                      value={filters.opcao_simples}
+                      onChange={(e) => update('opcao_simples', e.target.value)}
+                    >
+                      <option value="">Qualquer</option>
+                      <option value="S">Sim</option>
+                      <option value="N">Não</option>
+                    </select>
+                  </label>
+                </div>
+              </section>
+
+              <section className="advanced-section">
+                <h4 className="advanced-section-title">Capital social</h4>
+                <p className="advanced-section-hint">Faixa de capital declarado na Receita</p>
+                <div className="filters-grid advanced-grid">
+                  <label>
+                    Capital mín.
+                    <input
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      placeholder="R$"
+                      value={filters.capital_min}
+                      onChange={(e) => update('capital_min', e.target.value)}
+                    />
+                  </label>
+                  <label>
+                    Capital máx.
+                    <input
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      placeholder="R$"
+                      value={filters.capital_max}
+                      onChange={(e) => update('capital_max', e.target.value)}
+                    />
+                  </label>
+                </div>
+              </section>
+
+              <section className="advanced-section">
+                <h4 className="advanced-section-title">Tempo de empresa</h4>
+                <p className="advanced-section-hint">Data de abertura ou idade em anos</p>
+                <div className="filters-grid advanced-grid">
+                  <label>
+                    Abertura de
+                    <input
+                      type="date"
+                      value={filters.data_inicio_de}
+                      onChange={(e) => update('data_inicio_de', e.target.value)}
+                    />
+                  </label>
+                  <label>
+                    Abertura até
+                    <input
+                      type="date"
+                      value={filters.data_inicio_ate}
+                      onChange={(e) => update('data_inicio_ate', e.target.value)}
+                    />
+                  </label>
+                  <label>
+                    Idade mín. (anos)
+                    <input
+                      type="number"
+                      min={0}
+                      max={200}
+                      placeholder="Ex.: 2"
+                      value={filters.idade_min}
+                      onChange={(e) => update('idade_min', e.target.value)}
+                    />
+                  </label>
+                  <label>
+                    Idade máx. (anos)
+                    <input
+                      type="number"
+                      min={0}
+                      max={200}
+                      placeholder="Ex.: 15"
+                      value={filters.idade_max}
+                      onChange={(e) => update('idade_max', e.target.value)}
+                    />
+                  </label>
+                </div>
+              </section>
             </div>
           )}
         </div>
@@ -834,11 +852,6 @@ function Prospectos() {
                   <p className="cnpj mono">{formatCnpj(item.cnpj)}</p>
                 </div>
                 <div className="tags">
-                  {item.situacao_descricao && (
-                    <span className={`tag ${item.situacao_descricao === 'Ativa' ? 'ok' : 'soft'}`}>
-                      {item.situacao_descricao}
-                    </span>
-                  )}
                   {item.tipo_estabelecimento && (
                     <span className="tag soft">{item.tipo_estabelecimento}</span>
                   )}

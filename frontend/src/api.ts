@@ -144,7 +144,7 @@ export type Filters = {
   page_size: number
 }
 
-/** Preset padrão: ativas, privadas alta, matriz, com telefone */
+/** Preset padrão: ativas (sempre — BD só tem ativas), privadas alta, matriz, com telefone */
 export const defaultFilters: Filters = {
   q: '',
   situacao: '02',
@@ -222,6 +222,7 @@ export function loadSavedFilters(): Filters {
     return {
       ...defaultFilters,
       ...parsed,
+      situacao: '02',
       ufs: asStringList(parsed.ufs ?? parsed.uf),
       municipios: asStringList(parsed.municipios ?? parsed.municipio),
       page: typeof parsed.page === 'number' && parsed.page > 0 ? parsed.page : 1,
@@ -257,7 +258,7 @@ function toParams(filters: Filters, forExport = false): URLSearchParams {
 
   const entries: [string, string | number | boolean][] = [
     ['q', filters.q],
-    ['situacao', filters.situacao],
+    ['situacao', '02'],
     ['nicho', nichoSlug],
     ['cnae', filters.cnae],
     ['natureza', filters.natureza],

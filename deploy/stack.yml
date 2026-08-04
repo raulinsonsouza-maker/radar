@@ -1,0 +1,84 @@
+# Docker Swarm stack — Radar Symbius
+# Uso recomendado (na VPS):
+#   set -a && source /opt/apps/radar/.env && set +a
+#   docker stack deploy -c deploy/stack.yml radar
+#
+# Build: docker build -t radar-api:latest --target production .
+
+version: "3.8"
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-prospeccao}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-prospeccao}
+    volumes:
+      - radar_pgdata:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+
+  api:
+    image: radar-api:latest
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://radar.symbius.com.br}
+      SECRET_KEY: ${SECRET_KEY}
+      SERVE_FRONTEND: "1"
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@symbius.local}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_NOME: ${ADMIN_NOME:-Administrador}
+    networks:
+      - internal
+      - traefik_proxy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=traefik_proxy
+        - traefik.http.routers.radar.rule=Host(`radar.symbius.com.br`)
+        - traefik.http.routers.radar.entrypoints=websecure
+        - traefik.http.routers.radar.tls=true
+        - traefik.http.routers.radar.tls.certresolver=letsencryptresolver
+        - traefik.http.services.radar.loadbalancer.server.port=8000
+        - traefik.http.routers.radar-http.rule=Host(`radar.symbius.com.br`)
+        - traefik.http.routers.radar-http.entrypoints=web
+        - traefik.http.routers.radar-http.middlewares=radar-https-redirect
+        - traefik.http.middlewares.radar-https-redirect.redirectscheme.scheme=https
+        - traefik.http.middlewares.radar-https-redirect.redirectscheme.permanent=true
+
+networks:
+  internal:
+    driver: overlay
+  traefik_proxy:
+    external: true
+
+volumes:
+  radar_pgdata:
