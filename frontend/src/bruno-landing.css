@@ -2299,4 +2299,134 @@
   .lp-bruno .price-card {
     max-width: 520px;
   }
+
+  .lp-bruno .lead-card {
+    max-width: 520px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Formulário de conversão (substitui card de preço)
+------------------------------------------------------------------- */
+.lp-bruno .lead-card {
+  width: 100%;
+  max-width: 480px;
+  justify-self: end;
+  padding: 28px;
+  color: var(--white);
+  background: var(--ink);
+  border-radius: 14px;
+  box-shadow: 0 28px 50px rgba(11, 12, 11, 0.14);
+}
+
+.lp-bruno .lead-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 20px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 13px;
+}
+
+.lp-bruno .lead-card__top i {
+  padding: 6px 10px;
+  color: var(--amber-soft);
+  background: rgba(231, 169, 87, 0.1);
+  border: 1px solid rgba(231, 169, 87, 0.22);
+  border-radius: 999px;
+  font-size: 11px;
+  font-style: normal;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.lp-bruno .lead-form {
+  display: grid;
+  gap: 14px;
+}
+
+.lp-bruno .lead-form label {
+  display: grid;
+  gap: 7px;
+  color: #b7bbb3;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.lp-bruno .lead-form input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  color: #f4f5f1;
+  background: #151715;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  font: inherit;
+  font-size: 15px;
+  outline: none;
+}
+
+.lp-bruno .lead-form input::placeholder {
+  color: #6f746c;
+}
+
+.lp-bruno .lead-form input:focus {
+  border-color: rgba(231, 169, 87, 0.55);
+  box-shadow: 0 0 0 3px rgba(231, 169, 87, 0.12);
+}
+
+.lp-bruno .lead-form__error {
+  margin: 0;
+  padding: 10px 12px;
+  color: #ffd0cc;
+  background: rgba(245, 101, 91, 0.14);
+  border: 1px solid rgba(245, 101, 91, 0.28);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.lp-bruno .lead-form__hint {
+  color: #7f847c;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.lp-bruno .lead-form .button,
+.lp-bruno .lead-card__success .button {
+  min-height: 50px;
+  margin-top: 4px;
+  color: var(--ink);
+  background: #f4f5f1;
+  font-size: 15px;
+}
+
+.lp-bruno .lead-form .button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.lp-bruno .lead-card__success {
+  display: grid;
+  gap: 12px;
+}
+
+.lp-bruno .lead-card__success strong {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.lp-bruno .lead-card__success p {
+  margin: 0 0 8px;
+  color: #a7aba3;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .lp-bruno .lead-card {
+    justify-self: stretch;
+  }
 }

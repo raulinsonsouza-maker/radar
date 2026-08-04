@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 from functools import lru_cache
 from typing import Any, Optional
 
@@ -11,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from psycopg.rows import dict_row
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
 from pydantic_settings import BaseSettings
 
 from pathlib import Path
@@ -27,6 +28,7 @@ from app.auth import (
     row_to_public,
     verify_password,
 )
+from app.kommo import create_radar_lead
 from app.taxonomia import natureza_codigos, naturezas_para_meta
 from app.users import UserCreate, UserUpdate, create_user, list_users, update_user
 
@@ -37,6 +39,12 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://prospeccao:prospeccao@localhost:5433/prospeccao"
     cors_origins: str = "http://localhost:5173"
     secret_key: str = "dev-secret-change-me-in-production"
+    kommo_token: str = ""
+    kommo_subdomain: str = "symbius"
+    kommo_pipeline_id: int = 11592391
+    kommo_status_id: int = 89030651
+    kommo_tag_id: int = 143385
+    kommo_integration_id: str = ""
 
     model_config = {
         "env_file": ".env",
@@ -110,6 +118,18 @@ class SearchResponse(BaseModel):
     page: int
     page_size: int
     items: list[dict[str, Any]]
+
+
+class LeadCaptureRequest(BaseModel):
+    nome: str = Field(min_length=2, max_length=120)
+    email: EmailStr
+    whatsapp: str = Field(min_length=8, max_length=30)
+
+
+class LeadCaptureResponse(BaseModel):
+    ok: bool = True
+    lead_id: Optional[int] = None
+    message: str = "Recebemos seu contato. Em breve a Symbius fala com você."
 
 
 def resolve_nicho_clause(nicho: str) -> tuple[str, list[Any]] | None:
@@ -390,6 +410,43 @@ def health():
         return {"ok": True, "estabelecimentos": row["n"] if row else 0}
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.post("/api/leads", response_model=LeadCaptureResponse)
+async def capture_lead(payload: LeadCaptureRequest):
+    cfg = get_settings()
+    if not cfg.kommo_token.strip():
+        raise HTTPException(status_code=503, detail="Captura de leads indisponível no momento")
+
+    nome = payload.nome.strip()
+    email = str(payload.email).strip().lower()
+    whatsapp = payload.whatsapp.strip()
+    if not re.search(r"\d{8,}", whatsapp):
+        raise HTTPException(status_code=422, detail="Informe um WhatsApp válido")
+
+    try:
+        created = await create_radar_lead(
+            token=cfg.kommo_token,
+            subdomain=cfg.kommo_subdomain.strip() or "symbius",
+            nome=nome,
+            email=email,
+            whatsapp=whatsapp,
+            pipeline_id=cfg.kommo_pipeline_id,
+            status_id=cfg.kommo_status_id,
+            tag_id=cfg.kommo_tag_id,
+        )
+    except Exception as err:
+        raise HTTPException(
+            status_code=502,
+            detail="Não foi possível registrar seu contato. Tente novamente em instantes.",
+        ) from err
+
+    lead_id = None
+    if isinstance(created, dict):
+        raw_id = created.get("id")
+        if isinstance(raw_id, int):
+            lead_id = raw_id
+    return LeadCaptureResponse(lead_id=lead_id)
 
 
 @app.post("/api/auth/login", response_model=TokenResponse)

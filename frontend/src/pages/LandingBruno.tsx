@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
+import { submitLeadCapture } from '../api'
 import '../bruno-landing.css'
 
 function BrandMark({ light = false }: { light?: boolean }) {
@@ -23,6 +24,12 @@ function BrandMark({ light = false }: { light?: boolean }) {
 
 export default function LandingBruno() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [nome, setNome] = useState('')
+  const [email, setEmail] = useState('')
+  const [whatsapp, setWhatsapp] = useState('')
+  const [leadSubmitting, setLeadSubmitting] = useState(false)
+  const [leadError, setLeadError] = useState<string | null>(null)
+  const [leadDone, setLeadDone] = useState(false)
 
   useEffect(() => {
     const items = document.querySelectorAll('.lp-bruno .reveal')
@@ -45,6 +52,23 @@ export default function LandingBruno() {
     return () => observer.disconnect()
   }, [])
 
+  async function onLeadSubmit(e: FormEvent) {
+    e.preventDefault()
+    setLeadError(null)
+    setLeadSubmitting(true)
+    try {
+      await submitLeadCapture({ nome, email, whatsapp })
+      setLeadDone(true)
+      setNome('')
+      setEmail('')
+      setWhatsapp('')
+    } catch (err) {
+      setLeadError(err instanceof Error ? err.message : 'Não foi possível enviar.')
+    } finally {
+      setLeadSubmitting(false)
+    }
+  }
+
   return (
     <div className="lp-bruno landing-page">
       <header className={`site-header${menuOpen ? ' menu-open' : ''}`}>
@@ -61,8 +85,8 @@ export default function LandingBruno() {
             <a href="#confianca" onClick={() => setMenuOpen(false)}>
               Dados
             </a>
-            <a href="#planos" onClick={() => setMenuOpen(false)}>
-              Planos
+            <a href="#contato" onClick={() => setMenuOpen(false)}>
+              Contato
             </a>
           </nav>
 
@@ -70,10 +94,10 @@ export default function LandingBruno() {
             <Link className="text-link" to="/login">
               Entrar
             </Link>
-            <Link className="button button--dark button--small" to="/login">
-              Explorar o Radar
+            <a className="button button--dark button--small" href="#contato">
+              Quero contato
               <span aria-hidden="true">↗</span>
-            </Link>
+            </a>
           </div>
 
           <button
@@ -106,10 +130,10 @@ export default function LandingBruno() {
                 encontrar e por que cada empresa importa.
               </p>
               <div className="hero__actions">
-                <Link className="button button--dark" to="/login">
-                  Começar uma busca
+                <a className="button button--dark" href="#contato">
+                  Quero ser contactado
                   <span aria-hidden="true">↗</span>
-                </Link>
+                </a>
                 <a className="button button--ghost-dark" href="#produto">
                   Ver o produto
                   <span className="button__play" aria-hidden="true">
@@ -494,43 +518,100 @@ export default function LandingBruno() {
           </div>
         </section>
 
-        <section className="pricing-section section-light" id="planos">
+        <section className="pricing-section section-light" id="contato">
           <div className="page-shell pricing-grid">
             <div className="pricing-copy reveal">
               <div className="eyebrow eyebrow--dark">
                 <span className="eyebrow__index">06</span>
-                Acesso ao Radar
+                Fale com a Symbius
               </div>
               <h2>
-                Menos ruído.
+                Quer o Radar
                 <br />
-                Mais mercado.
+                no seu time?
               </h2>
               <p>
-                Tenha uma ferramenta contínua de exploração comercial pelo custo de
-                poucas horas de prospecção manual.
+                Deixe seus dados. Nossa equipe entra em contato para entender seu
+                mercado e liberar o acesso certo para a sua operação.
               </p>
             </div>
-            <div className="price-card reveal reveal--delay">
-              <div className="price-card__top">
-                <span>Plano Radar</span>
-                <i>Mais escolhido</i>
+            <div className="lead-card reveal reveal--delay">
+              <div className="lead-card__top">
+                <span>Formulário de conversão</span>
+                <i>Resposta rápida</i>
               </div>
-              <div className="price">
-                <sup>R$</sup>
-                <strong>197</strong>
-                <span>/mês</span>
-              </div>
-              <p>Acesso completo à plataforma para uma operação comercial.</p>
-              <ul>
-                <li>Prospecção por nicho, região e contato</li>
-                <li>Listas comerciais salvas</li>
-                <li>Dados oficiais de CNPJ</li>
-                <li>Atualizações contínuas</li>
-              </ul>
-              <Link className="button button--dark button--wide" to="/login">
-                Começar agora <span>↗</span>
-              </Link>
+              {leadDone ? (
+                <div className="lead-card__success" role="status">
+                  <strong>Recebemos seu contato.</strong>
+                  <p>Em breve a Symbius fala com você pelo WhatsApp ou e-mail.</p>
+                  <button
+                    type="button"
+                    className="button button--light button--wide"
+                    onClick={() => setLeadDone(false)}
+                  >
+                    Enviar outro contato
+                  </button>
+                </div>
+              ) : (
+                <form className="lead-form" onSubmit={onLeadSubmit} noValidate>
+                  <label htmlFor="lead-nome">
+                    Nome
+                    <input
+                      id="lead-nome"
+                      name="nome"
+                      type="text"
+                      autoComplete="name"
+                      placeholder="Seu nome"
+                      required
+                      minLength={2}
+                      value={nome}
+                      onChange={(e) => setNome(e.target.value)}
+                    />
+                  </label>
+                  <label htmlFor="lead-email">
+                    E-mail
+                    <input
+                      id="lead-email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="voce@empresa.com"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </label>
+                  <label htmlFor="lead-whatsapp">
+                    WhatsApp
+                    <input
+                      id="lead-whatsapp"
+                      name="whatsapp"
+                      type="tel"
+                      autoComplete="tel"
+                      placeholder="(11) 99999-9999"
+                      required
+                      value={whatsapp}
+                      onChange={(e) => setWhatsapp(e.target.value)}
+                    />
+                  </label>
+                  {leadError && (
+                    <p className="lead-form__error" role="alert">
+                      {leadError}
+                    </p>
+                  )}
+                  <button
+                    className="button button--light button--wide"
+                    type="submit"
+                    disabled={leadSubmitting}
+                  >
+                    {leadSubmitting ? 'Enviando…' : 'Quero ser contactado'}
+                    <span>↗</span>
+                  </button>
+                  <small className="lead-form__hint">
+                    Usamos seus dados só para retorno comercial da Symbius.
+                  </small>
+                </form>
+              )}
             </div>
           </div>
         </section>
@@ -547,9 +628,9 @@ export default function LandingBruno() {
                 está no seu Radar.
               </h2>
             </div>
-            <Link className="button button--light" to="/login">
-              Explorar empresas <span>↗</span>
-            </Link>
+            <a className="button button--light" href="#contato">
+              Pedir contato <span>↗</span>
+            </a>
           </div>
         </section>
       </main>
@@ -566,13 +647,13 @@ export default function LandingBruno() {
                 <b>Produto</b>
                 <a href="#produto">Visão geral</a>
                 <a href="#metodo">Como funciona</a>
-                <a href="#planos">Planos</a>
+                <a href="#contato">Contato</a>
               </div>
               <div>
                 <b>Empresa</b>
                 <a href="#produto">Sobre a Symbius</a>
-                <a href="#planos">Privacidade</a>
-                <Link to="/login">Contato</Link>
+                <a href="#contato">Fale conosco</a>
+                <Link to="/login">Entrar</Link>
               </div>
             </div>
           </div>

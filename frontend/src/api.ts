@@ -373,6 +373,29 @@ export async function loginRequest(
   return res.json()
 }
 
+export async function submitLeadCapture(payload: {
+  nome: string
+  email: string
+  whatsapp: string
+}): Promise<{ ok: boolean; lead_id?: number | null; message: string }> {
+  const res = await fetch('/api/leads', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) {
+    let detail = 'Não foi possível enviar. Tente novamente.'
+    try {
+      const data = await res.json()
+      detail = data.detail || detail
+    } catch {
+      /* ignore */
+    }
+    throw new Error(typeof detail === 'string' ? detail : 'Não foi possível enviar. Tente novamente.')
+  }
+  return res.json()
+}
+
 export async function fetchMe(): Promise<AuthUser> {
   const res = await apiFetch('/api/auth/me')
   if (!res.ok) throw new Error('Sessão inválida')
