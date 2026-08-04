@@ -560,8 +560,9 @@ export function whatsappUrl(phone?: string | null): string | null {
 }
 
 /**
- * Busca Google só da empresa: Meu Negócio, site, redes da marca, CNPJ/Econodata.
- * Usa nome fantasia / marca curta — não mistura sócios/decisor.
+ * Busca Google da empresa — estrutura que favorece Meu Negócio/Maps:
+ * marca + fantasia + razão + cidade, site/redes da marca, CNPJ/Econodata.
+ * Não inclui sócios/decisor (isso fica na lupa da pessoa).
  */
 export function googleResearchUrl(item: Prospecto): string {
   const razao = item.razao_social?.trim()
@@ -569,19 +570,31 @@ export function googleResearchUrl(item: Prospecto): string {
   const municipio = item.municipio_nome?.trim()
   const uf = item.uf?.trim()
 
-  const brand =
-    fantasia
+  const shortBrand = (label?: string | null) =>
+    label
       ?.split(/[\s&/\-|,]+/)
       .map((w) => w.trim())
-      .find((w) => w.length >= 4 && !/^(ltda|me|eireli|sa|epp)$/i.test(w)) || null
+      .find((w) => w.length >= 4 && !/^(ltda|me|eireli|sa|epp|epp|ss)$/i.test(w)) || null
+
+  // Marca curta a partir da fantasia; se não houver, da razão (ajuda Maps)
+  const brand = shortBrand(fantasia) || shortBrand(razao)
 
   const parts: string[] = []
 
-  // Âncora da marca (fantasia > marca curta > razão social)
   if (brand) parts.push(brand)
+
   if (fantasia && fantasia.toLowerCase() !== brand?.toLowerCase()) {
     parts.push(`"${fantasia}"`)
-  } else if (!fantasia && razao) {
+  }
+
+  // Razão social amplia o match do Meu Negócio (muitos cadastros usam o nome legal)
+  if (
+    razao &&
+    razao.toLowerCase() !== fantasia?.toLowerCase() &&
+    razao.toLowerCase() !== brand?.toLowerCase()
+  ) {
+    parts.push(`"${razao}"`)
+  } else if (!fantasia && !brand && razao) {
     parts.push(`"${razao}"`)
   }
 
@@ -589,7 +602,8 @@ export function googleResearchUrl(item: Prospecto): string {
   else if (municipio) parts.push(`"${municipio}"`)
   else if (uf) parts.push(uf)
 
-  parts.push('(site OR Instagram OR Facebook OR LinkedIn OR "Google Meu Negócio" OR empresa)')
+  // Mesmos sinais da versão que trazia Maps + perfis da empresa
+  parts.push('(site OR Instagram OR Facebook OR LinkedIn OR "Google Meu Negócio")')
 
   const digits = (item.cnpj || '').replace(/\D/g, '')
   if (digits.length === 14) {

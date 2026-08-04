@@ -112,9 +112,6 @@ class SearchResponse(BaseModel):
     items: list[dict[str, Any]]
 
 
-COUNT_CAP = 10_001
-
-
 def resolve_nicho_clause(nicho: str) -> tuple[str, list[Any]] | None:
     """Traduz slug de nicho em cláusula eficiente sobre cnae_fiscal_principal."""
     with get_conn() as conn, conn.cursor() as cur:
@@ -591,16 +588,11 @@ def search_prospectos(
         )
 
         cur.execute(
-            f"""
-            SELECT COUNT(*) AS total FROM (
-                SELECT 1 FROM v_prospectos{where} LIMIT %s
-            ) capped
-            """,
-            [*params, COUNT_CAP],
+            f"SELECT COUNT(*)::bigint AS total FROM v_prospectos{where}",
+            params,
         )
-        capped_total = cur.fetchone()["total"]
-        total_is_capped = capped_total >= COUNT_CAP
-        total = capped_total if not total_is_capped else COUNT_CAP - 1
+        total = int(cur.fetchone()["total"])
+        total_is_capped = False
 
         cur.execute(
             f"""
