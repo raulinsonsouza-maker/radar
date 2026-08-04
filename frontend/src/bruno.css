@@ -239,7 +239,7 @@
 }
 
 .ui-bruno .bruno-outlet {
-  padding: 68px 0 80px 68px;
+  padding: var(--bruno-topbar) 0 80px 68px;
   min-height: 100vh;
 }
 
